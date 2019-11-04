@@ -1,0 +1,21 @@
+{
+  "name": "multipost",
+  "version": "1.0.0",
+  "description": "Social Media utility",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "http": "^0.0.0",
+    "node-cron": "^2.0.3",
+    "puppeteer-core": "^1.20.0",
+    "puppeteer": "^1.20.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yasir Demircan",
+  "license": "ISC"
+}

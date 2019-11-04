@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MultiPost</title>
+    <link rel="stylesheet" href="uikit/css/uikit.min.css">
+    <script src="uikit/js/uikit.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <form>
+        <fieldset class="uk-fieldset">
+
+            <legend class="uk-legend">MultiPost</legend>
+
+
+
+            <div class="uk-margin">
+                <select id="postTarget" class="uk-select">
+                    <option value="fb">Facebook</option>
+                    <option value="tw">Twitter</option>
+                    <option value="ins">Instagram</option>
+                    <option value="cast">BroadCast(All)</option>
+                </select>
+            </div>
+            <div class="uk-margin">
+                <div class="js-upload" uk-form-custom>
+                    <input type="file" onchange="getFile()" id="file">
+                    <button class="uk-button uk-button-default" type="button" tabindex="-1">Dosya Seç</button>
+                </div>
+            </div>
+            <div class="uk-margin">
+
+                <input type="date" id="date">
+
+            </div>
+            <div class="uk-margin">
+                <textarea class="uk-textarea" rows="5" id="textarea" placeholder="Textarea"></textarea>
+            </div>
+            <button class="uk-button uk-button-default" onclick="sendAJAX()" id="send2server" type="button">Send to Server</button>
+
+        </fieldset>
+    </form>
+
+</body>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script src="https://www.gstatic.com/firebasejs/7.2.1/firebase-storage.js"></script>
+
+<script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+     
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+</script>
+<script>
+ var dataUrl2Upload;
+    // Get a reference to the storage service, which is used to create references in your storage bucket
+    var storage = firebase.storage();
+
+    // Create a storage reference from our storage service
+    var storageRef = storage.ref();
+    var xhr = new XMLHttpRequest();
+
+    function getFile() {
+        var file = document.getElementById('file').files[0];
+        var reader = new FileReader();
+
+        reader.addEventListener("load", function() {
+           // console.log(reader.result);
+            dataUrl2Upload = reader.result;
+
+
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+
+    }
+
+    function sendAJAX() {
+ //Start with upload
+    var button = document.getElementById("send2server");
+    button.disabled = true;
+        
+        var now = Date.now();
+        var imageRef = storageRef.child(now + '.png');
+        imageRef.putString(dataUrl2Upload,'data_url').then(function(snapshot) {
+
+        snapshot.ref.getDownloadURL().then(function(url){
+            //Handle after upload 
+            console.log(url); 
+            var postTarget = document.getElementById("postTarget").value;
+        var postVal = document.getElementById("textarea").value;
+        var split = document.getElementById("date").value.split("-");
+        var realDate = split[2] + split[1];
+        var fileurl = url;
+        console.log(Date.now());
+        var sentArray = [];
+        sentArray.push(postTarget);
+        sentArray.push(postVal);
+        sentArray.push(realDate);
+        sentArray.push(fileurl);
+       
+        var json = {
+            "data": sentArray
+        }
+
+        var data = JSON.stringify(json);
+
+
+        xhr.addEventListener("readystatechange", function() {
+            if (this.readyState === 4) {
+                console.log(this.responseText);
+            }
+        });
+
+//Configured to localhost port 3000           
+        xhr.open("POST", "http://127.0.0.1:3000");
+        xhr.send(data);
+        button.disabled = false;
+        })
+    
+            
+            
+});
+       
+    }
+
+</script>
+
+</html>
